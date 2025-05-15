@@ -1,32 +1,44 @@
-use solver::{function_through, Point};
+use constraints::{Derivative, Point, constraint::Constraint};
+use solver::function_through;
 
-use rand::Rng;
+use num_rational::Ratio;
 
+mod constraints;
 mod solver;
 
+fn float_to_fraction(x: f64) -> Option<(i64, i64)> {
+    Ratio::approximate_float(x).map(|r| (*r.numer(), *r.denom()))
+}
+
 fn main() {
-    let mut points = vec![];
-    
-    let mut rng = rand::rng();
-    let mut prev_x = 0.0;
-    for i in 0..20 {
-        let x = rng.random_range(prev_x+1.0..prev_x+20.0);
-        let y = rng.random_range(-100.0..100.0);
-
-        points.push(Point { x, y });
-        prev_x = x;
-
-        println!("P_{{{i}}} = ({x}, {y})");
+    let constraints: Vec<Box<dyn Constraint>> = vec![
+        Box::new(Point { x: 1.0, y: 5.0 }),
+        Box::new(Point { x: 3.0, y: 4.0 }),
+        Box::new(Point { x: 5.0, y: 1.0 }),
+        Box::new(Derivative {
+            value: 5.0,
+            at_x: 6.0,
+        }),
+    ];
+    for i in 0..constraints.len() {
+        println!("{}", constraints[i].to_string(i.to_string()));
     }
+    println!();
 
-
-    let coefficients = function_through(&points);
-    print!("y = ");
+    let coefficients = function_through(&constraints);
+    print!("f(x) = ");
     for i in 0..coefficients.len() {
-        if i < coefficients.len()-1 {
-            print!("{}x^{{{}}} + ", coefficients[i], coefficients.len()-i-1);
+        if i < coefficients.len() - 1 {
+            if let Some((num, den)) = float_to_fraction(coefficients[i]) {
+                print!(
+                    "\\frac{{{num}}}{{{den}}}x^{{{}}} + ",
+                    coefficients.len() - i - 1
+                );
+            }
         } else {
-            print!("{}.", coefficients[i]);
+            if let Some((num, den)) = float_to_fraction(coefficients[i]) {
+                print!("\\frac{{{num}}}{{{den}}}");
+            }
         }
     }
 }
