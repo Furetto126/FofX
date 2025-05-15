@@ -1,6 +1,5 @@
 use std::ops::{Index, IndexMut};
-
-use crate::constraints::{constraint::Constraint, Point};
+use crate::constraints::constraint::Constraint;
 
 #[derive(Debug, Clone)]
 struct LinearMatrix {
@@ -61,14 +60,14 @@ fn gaussian_elimination(matrix: &mut LinearMatrix, i: usize) {
     }
 }
 
-pub fn function_through(points: &Vec<Box<dyn Constraint>>) -> Vec<f64> {
+pub fn function_through(constraints: &Vec<Box<dyn Constraint>>) -> Vec<f64> {
     // Construct matrix for Gaussian elimination.
     // ------------------------------------------
-    let n = points.len();
+    let n = constraints.len();
     let mut matrix = LinearMatrix::new(n);
 
     for i in 0..n {
-        matrix[i] = points[i].to_linear_equation(n).clone();
+        matrix[i] = constraints[i].to_linear_equation(n).clone();
     }
 
     // Iterate gaussian elimination.

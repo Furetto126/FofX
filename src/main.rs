@@ -1,4 +1,4 @@
-use constraints::{Derivative, Point, constraint::Constraint};
+use constraints::{constraint::Constraint, Integral, Derivative, Point};
 use solver::function_through;
 
 use num_rational::Ratio;
@@ -19,6 +19,11 @@ fn main() {
             value: 5.0,
             at_x: 6.0,
         }),
+        Box::new(Integral {
+            value: 10.0,
+            from: 0.0,
+            to: 20.0 
+        })
     ];
     for i in 0..constraints.len() {
         println!("{}", constraints[i].to_string(i.to_string()));
